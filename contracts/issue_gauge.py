@@ -33,7 +33,7 @@ class IssueGauge(gl.Contract):
         def assess_issue() -> typing.Any:
             try:
                 response = gl.nondet.web.get(url_for_review)
-                status_code = response.status
+                status_code = response.status_code
                 body = response.body
             except Exception:
                 status_code = 0
