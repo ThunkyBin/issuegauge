@@ -298,7 +298,7 @@ async function prepareReview(event) {
   const issueUrl = canonicalIssueUrl(el('#issue-url').value.trim());
   if (!address) return setActivity('Paste a valid deployed contract address first.', true);
   if (!issueUrl) return setActivity('Use one public URL in the form https://github.com/owner/repository/issues/123.', true);
-  if (!el('#public-consent').checked) return setActivity('Confirm that the issue URL and result will be public on-chain data.', true);
+  if (!el('#public-consent').checked) return setActivity('Confirm that public issue text goes to GenLayer validators and the URL and result become public on-chain data.', true);
   if (!client || !account) return setActivity('Connect your wallet before requesting a fee estimate.', true);
   if (pendingForCurrentContract()) return showPendingNotice();
 
@@ -330,7 +330,7 @@ async function submitReview() {
     el('#fee-panel').hidden = true;
     return setActivity('The network, contract, or URL changed. Prepare a fresh estimate before submitting.', true);
   }
-  if (!window.confirm(`Submit this issue review on ${networks[networkKey].label}?\n\nThe GitHub URL and checklist result will be public on-chain data. Check any fee shown in your wallet before approving.`)) return;
+  if (!window.confirm(`Submit this issue review on ${networks[networkKey].label}?\n\nPublic issue text will be sent to GenLayer validators for assessment. The GitHub URL and checklist result will be public on-chain data. Check any fee shown in your wallet before approving.`)) return;
 
   el('#submit-review').disabled = true;
   el('#estimate-button').disabled = true;

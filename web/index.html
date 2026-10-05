@@ -34,7 +34,7 @@
             <div class="eyebrow">01 / REVIEW A PUBLIC ISSUE</div>
             <h2 id="review-heading">Give an issue<br />a readiness check.</h2>
             <p>Paste a public GitHub issue. GenLayer validators independently assess the same four-item checklist before a result is stored.</p>
-            <div class="privacy-note"><span>!</span><p><strong>Public on-chain record.</strong> The issue URL and checklist result are permanent public data if the transaction succeeds. Issue text itself is not stored by this contract.</p></div>
+            <div class="privacy-note"><span>!</span><p><strong>Public data flow.</strong> The issue URL and checklist result are permanent public data if the transaction succeeds. Public issue text is fetched from GitHub and sent to GenLayer validators for assessment; this contract does not store the text. Use content you are comfortable sharing with validators.</p></div>
           </div>
           <div class="review-card">
             <div class="card-head"><div><span class="eyebrow">ISSUEGAUGE / MVP 0.1</span><h3>New issue review</h3></div><span class="testnet-badge"><i></i> TEST NETWORK</span></div>
@@ -50,7 +50,7 @@
               <label class="contract-label" for="contract-address">Deployed IssueGauge contract</label>
               <div class="input-wrap contract-input"><input id="contract-address" type="text" spellcheck="false" autocomplete="off" placeholder="0x…" aria-describedby="contract-hint" /></div>
               <p class="field-hint" id="contract-hint">Paste the address from GenLayer Studio after deploying the contract.</p>
-              <label class="disclosure-check"><input id="public-consent" type="checkbox" /><span>I understand that the issue URL and checklist result become public on-chain data. The result is advisory; maintainers make every decision.</span></label>
+              <label class="disclosure-check"><input id="public-consent" type="checkbox" /><span>I understand the public issue text is sent to GenLayer validators for assessment, and the issue URL and checklist result become public on-chain data. The result is advisory; maintainers make every decision.</span></label>
               <button id="estimate-button" class="primary-button" type="submit" disabled><span>Simulate &amp; prepare</span><b>↗</b></button>
               <div id="fee-panel" class="fee-panel" hidden>
                 <div class="fee-panel-top"><span class="fee-kicker">PREFLIGHT SIMULATION</span><strong id="fee-value">—</strong></div>

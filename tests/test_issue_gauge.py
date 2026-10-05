@@ -21,6 +21,18 @@ def _good_assessment(note="Add the exact version and a minimal reproduction."):
     )
 
 
+def _issue_payload(url, title="Bug report", body="Steps, expected result, actual result, GenLayer Studio 0.1."):
+    return json.dumps(
+        {
+            "html_url": url,
+            "number": int(url.rsplit("/", 1)[1]),
+            "title": title,
+            "body": body,
+            "labels": [{"name": "bug"}],
+        }
+    )
+
+
 def test_empty_state(direct_deploy):
     contract = direct_deploy(CONTRACT)
     assert int(contract.get_review_count()) == 0
@@ -61,8 +73,11 @@ def test_rejects_noncanonical_or_nonissue_urls(direct_vm, direct_deploy, url):
 def test_canonicalizes_url_and_stores_consensus_result(direct_vm, direct_deploy):
     contract = direct_deploy(CONTRACT)
     direct_vm.mock_web(
-        r"github\.com/Example/Project/issues/42",
-        {"status": 200, "body": "Bug report: steps, expected result, actual result, GenLayer Studio 0.1."},
+        r"api\.github\.com/repos/Example/Project/issues/42",
+        {
+            "status": 200,
+            "body": _issue_payload("https://github.com/Example/Project/issues/42"),
+        },
     )
     direct_vm.mock_llm(r".*", _good_assessment())
 
@@ -86,7 +101,10 @@ def test_canonicalizes_url_and_stores_consensus_result(direct_vm, direct_deploy)
 
 def test_needs_detail_when_a_checklist_item_is_missing(direct_vm, direct_deploy):
     contract = direct_deploy(CONTRACT)
-    direct_vm.mock_web(r"github\.com/example/project/issues/42", {"status": 200, "body": "An issue description."})
+    direct_vm.mock_web(
+        r"api\.github\.com/repos/example/project/issues/42",
+        {"status": 200, "body": _issue_payload(GOOD_URL, body="An issue description.")},
+    )
     direct_vm.mock_llm(
         r".*",
         json.dumps(
@@ -111,7 +129,7 @@ def test_needs_detail_when_a_checklist_item_is_missing(direct_vm, direct_deploy)
 
 def test_fetch_failure_records_unclear(direct_vm, direct_deploy):
     contract = direct_deploy(CONTRACT)
-    direct_vm.mock_web(r"github\.com/example/project/issues/42", {"status": 503, "body": "unavailable"})
+    direct_vm.mock_web(r"api\.github\.com/repos/example/project/issues/42", {"status": 503, "body": "unavailable"})
 
     review_id = contract.review_issue(GOOD_URL)
     record = json.loads(contract.get_review(review_id))
@@ -123,7 +141,10 @@ def test_fetch_failure_records_unclear(direct_vm, direct_deploy):
 
 def test_incomplete_model_output_records_unclear(direct_vm, direct_deploy):
     contract = direct_deploy(CONTRACT)
-    direct_vm.mock_web(r"github\.com/example/project/issues/42", {"status": 200, "body": "Public issue text."})
+    direct_vm.mock_web(
+        r"api\.github\.com/repos/example/project/issues/42",
+        {"status": 200, "body": _issue_payload(GOOD_URL, body="Public issue text.")},
+    )
     direct_vm.mock_llm(r".*", json.dumps({"issue_kind": "BUG", "problem_clear": True}))
 
     review_id = contract.review_issue(GOOD_URL)
@@ -134,12 +155,18 @@ def test_incomplete_model_output_records_unclear(direct_vm, direct_deploy):
 
 def test_consensus_rejects_changed_checklist_field(direct_vm, direct_deploy):
     contract = direct_deploy(CONTRACT)
-    direct_vm.mock_web(r"github\.com/example/project/issues/42", {"status": 200, "body": "Public issue text."})
+    direct_vm.mock_web(
+        r"api\.github\.com/repos/example/project/issues/42",
+        {"status": 200, "body": _issue_payload(GOOD_URL, body="Public issue text.")},
+    )
     direct_vm.mock_llm(r".*", _good_assessment())
     contract.review_issue(GOOD_URL)
 
     direct_vm.clear_mocks()
-    direct_vm.mock_web(r"github\.com/example/project/issues/42", {"status": 200, "body": "Public issue text."})
+    direct_vm.mock_web(
+        r"api\.github\.com/repos/example/project/issues/42",
+        {"status": 200, "body": _issue_payload(GOOD_URL, body="Public issue text.")},
+    )
     direct_vm.mock_llm(
         r".*",
         json.dumps(
@@ -160,12 +187,18 @@ def test_consensus_rejects_changed_checklist_field(direct_vm, direct_deploy):
 
 def test_consensus_allows_different_note_when_rubric_matches(direct_vm, direct_deploy):
     contract = direct_deploy(CONTRACT)
-    direct_vm.mock_web(r"github\.com/example/project/issues/42", {"status": 200, "body": "Public issue text."})
+    direct_vm.mock_web(
+        r"api\.github\.com/repos/example/project/issues/42",
+        {"status": 200, "body": _issue_payload(GOOD_URL, body="Public issue text.")},
+    )
     direct_vm.mock_llm(r".*", _good_assessment("Leader wording."))
     contract.review_issue(GOOD_URL)
 
     direct_vm.clear_mocks()
-    direct_vm.mock_web(r"github\.com/example/project/issues/42", {"status": 200, "body": "Other page phrasing."})
+    direct_vm.mock_web(
+        r"api\.github\.com/repos/example/project/issues/42",
+        {"status": 200, "body": _issue_payload(GOOD_URL, body="Other page phrasing.")},
+    )
     direct_vm.mock_llm(r".*", _good_assessment("Validator wording."))
 
     assert direct_vm.run_validator() is True

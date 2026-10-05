@@ -28,11 +28,20 @@ class IssueGauge(gl.Contract):
         if not canonical_url:
             raise gl.vm.UserError("Use a public URL in the form https://github.com/owner/repository/issues/number.")
 
-        url_for_review = canonical_url
+        issue_parts = canonical_url[len("https://github.com/"):].split("/")
+        owner, repository, _, issue_number = issue_parts
+        api_url = (
+            "https://api.github.com/repos/"
+            + owner
+            + "/"
+            + repository
+            + "/issues/"
+            + issue_number
+        )
 
         def assess_issue() -> typing.Any:
             try:
-                response = gl.nondet.web.get(url_for_review)
+                response = gl.nondet.web.get(api_url)
                 status_code = response.status_code
                 body = response.body
             except Exception:
@@ -43,11 +52,40 @@ class IssueGauge(gl.Contract):
                 return _unclear_result("The public GitHub issue could not be fetched.")
 
             try:
-                page_text = body.decode("utf-8")[:_MAX_PAGE_LENGTH]
+                issue_data = json.loads(body.decode("utf-8"))
             except Exception:
-                return _unclear_result("The issue page did not contain readable UTF-8 text.")
+                return _unclear_result("GitHub did not return readable issue data.")
+            if not isinstance(issue_data, dict):
+                return _unclear_result("GitHub did not return one issue object.")
+            if str(issue_data.get("number", "")) != issue_number:
+                return _unclear_result("GitHub returned a different issue number.")
+            returned_url = issue_data.get("html_url")
+            if not isinstance(returned_url, str) or returned_url.rstrip("/").lower() != canonical_url.lower():
+                return _unclear_result("GitHub returned a different issue URL.")
+            if "pull_request" in issue_data:
+                return _unclear_result("Pull requests are not GitHub issues for this review.")
+
+            title = issue_data.get("title")
+            issue_body = issue_data.get("body")
+            labels = issue_data.get("labels", [])
+            if not isinstance(title, str):
+                return _unclear_result("GitHub returned no readable issue title.")
+            if not isinstance(issue_body, str):
+                issue_body = ""
+            if not isinstance(labels, list):
+                labels = []
+            label_names = [
+                label.get("name", "")
+                for label in labels
+                if isinstance(label, dict) and isinstance(label.get("name", ""), str)
+            ]
+            page_text = (
+                "Title: " + title + "\n"
+                + "Labels: " + ", ".join(label_names) + "\n"
+                + "Issue body:\n" + issue_body
+            )[:_MAX_PAGE_LENGTH]
             if not page_text.strip():
-                return _unclear_result("The issue page contained no readable text.")
+                return _unclear_result("The issue contained no readable text.")
 
             prompt = f"""
 You are assessing whether a public GitHub issue gives an open-source maintainer

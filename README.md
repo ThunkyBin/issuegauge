@@ -19,7 +19,7 @@ The contract derives a score from 0 to 80 from those four agreed fields and buil
 
 ## How GenLayer is used
 
-`review_issue(issue_url)` accepts only a standard `https://github.com/{owner}/{repo}/issues/{number}` URL. A bounded public-page excerpt is fetched inside a non-deterministic block. The leader and each validator independently run the same rubric; a write succeeds only when they agree on the issue kind and the four checklist fields. The app simulates a write first, then lets the connected wallet show and approve any test-network fee.
+`review_issue(issue_url)` accepts only a standard `https://github.com/{owner}/{repo}/issues/{number}` URL and fetches the matching issue object from GitHub's public REST API inside a non-deterministic block. A bounded excerpt of the title, labels, and body is sent to GenLayer validators for assessment. The leader and each validator independently run the same rubric; a write succeeds only when they agree on the issue kind and the four checklist fields. The URL and result are public on-chain data; the issue text is not stored by the contract. The app simulates a write first, then lets the connected wallet show and approve any test-network fee.
 
 The UI supports read-only lookups by contract address and review ID. Review links contain the selected network, contract, and ID so another person can load the same on-chain record.
 
