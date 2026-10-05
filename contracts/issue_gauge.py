@@ -49,7 +49,9 @@ class IssueGauge(gl.Contract):
                 body = None
 
             if status_code < 200 or status_code >= 300 or body is None:
-                return _unclear_result("The public GitHub issue could not be fetched.")
+                if status_code:
+                    return _unclear_result("GitHub returned HTTP " + str(status_code) + " for the public issue API.")
+                return _unclear_result("The public GitHub issue API could not be reached.")
 
             try:
                 issue_data = json.loads(body.decode("utf-8"))
