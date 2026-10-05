@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#f5f4ef" />
+    <meta name="description" content="An evidence-first, consensus-backed completeness check for public GitHub issues." />
+    <title>IssueGauge — make issues actionable</title>
+  </head>
+  <body>
+    <div class="site-shell">
+      <header class="topbar">
+        <a class="wordmark" href="#top" aria-label="IssueGauge home"><span class="brand-mark">I<span>↗</span></span> IssueGauge</a>
+        <nav><a href="#how">How it works</a><a href="#read">Review lookup</a><a class="nav-pill" href="https://docs.genlayer.com/developers/networks" target="_blank" rel="noreferrer">GenLayer networks ↗</a></nav>
+      </header>
+
+      <main id="top">
+        <section class="hero">
+          <div class="hero-copy">
+            <div class="eyebrow"><span class="eyebrow-dot"></span> OPEN-SOURCE ISSUE TRIAGE ON GENLAYER</div>
+            <h1>Make good issues<br /><em>easy to act on.</em></h1>
+            <p class="hero-lede">A shared, evidence-first checklist for public GitHub issues. See whether the problem, steps, context, and supporting evidence are clear enough for a maintainer to pick up.</p>
+            <div class="hero-proof"><span class="proof-icon">✳</span><span>Independent validators<br /><strong>one public checklist</strong></span><span class="proof-divider"></span><span class="proof-icon proof-icon-dark">↗</span><span>Advisory review<br /><strong>no issue is auto-closed</strong></span></div>
+          </div>
+          <div class="hero-art" aria-hidden="true">
+            <div class="orbit orbit-one"></div><div class="orbit orbit-two"></div>
+            <div class="signal-card"><div class="signal-card-top"><span>ISSUE READINESS</span><span class="live-dot"></span></div><div class="signal-line signal-line-long"></div><div class="signal-line signal-line-short"></div><div class="signal-checks"><i>✓</i><i>✓</i><i>↗</i><i>✓</i></div><div class="signal-label">READY FOR REVIEW</div></div>
+            <div class="art-star star-a">✳</div><div class="art-star star-b">✦</div><div class="art-note">Evidence first.<br />Decisions stay human.</div>
+          </div>
+        </section>
+
+        <section class="workspace" aria-labelledby="review-heading">
+          <div class="workspace-intro">
+            <div class="eyebrow">01 / REVIEW A PUBLIC ISSUE</div>
+            <h2 id="review-heading">Give an issue<br />a readiness check.</h2>
+            <p>Paste a public GitHub issue. GenLayer validators independently assess the same four-item checklist before a result is stored.</p>
+            <div class="privacy-note"><span>!</span><p><strong>Public on-chain record.</strong> The issue URL and checklist result are permanent public data if the transaction succeeds. Issue text itself is not stored by this contract.</p></div>
+          </div>
+          <div class="review-card">
+            <div class="card-head"><div><span class="eyebrow">ISSUEGAUGE / MVP 0.1</span><h3>New issue review</h3></div><span class="testnet-badge"><i></i> TEST NETWORK</span></div>
+            <form id="review-form" novalidate>
+              <label for="issue-url">Public GitHub issue <span>one issue URL · required</span></label>
+              <div class="input-wrap url-input"><span aria-hidden="true">↗</span><input id="issue-url" type="url" maxlength="2048" placeholder="https://github.com/owner/repo/issues/123" autocomplete="url" required /></div>
+              <div class="field-meta"><span>Only github.com issue pages are accepted.</span><span id="url-count">0 / 2048</span></div>
+              <div class="network-wallet-row">
+                <div><label for="network">GenLayer network</label><select id="network"><option value="studionet">Studionet · test</option><option value="testnetBradbury">Bradbury · test</option><option value="testnetAsimov">Asimov · test</option></select></div>
+                <button class="wallet-button" id="connect-wallet" type="button">Connect wallet <span>↗</span></button>
+              </div>
+              <div class="wallet-meta"><span id="wallet-status">Wallet not connected</span><span id="network-status">Read-only lookup available</span></div>
+              <label class="contract-label" for="contract-address">Deployed IssueGauge contract</label>
+              <div class="input-wrap contract-input"><input id="contract-address" type="text" spellcheck="false" autocomplete="off" placeholder="0x…" aria-describedby="contract-hint" /></div>
+              <p class="field-hint" id="contract-hint">Paste the address from GenLayer Studio after deploying the contract.</p>
+              <label class="disclosure-check"><input id="public-consent" type="checkbox" /><span>I understand that the issue URL and checklist result become public on-chain data. The result is advisory; maintainers make every decision.</span></label>
+              <button id="estimate-button" class="primary-button" type="submit" disabled><span>Simulate &amp; prepare</span><b>↗</b></button>
+              <div id="fee-panel" class="fee-panel" hidden>
+                <div class="fee-panel-top"><span class="fee-kicker">PREFLIGHT SIMULATION</span><strong id="fee-value">—</strong></div>
+                <p>Simulation passed. The wallet will show any test-network fee before you approve. Nothing has been sent yet.</p>
+                <button id="submit-review" class="confirm-button" type="button">Submit review in wallet <span>↗</span></button>
+              </div>
+            </form>
+            <div id="activity" class="activity" role="status" aria-live="polite">Connect a wallet and enter a deployed contract to prepare a review.</div>
+          </div>
+        </section>
+
+        <section class="result-section" id="read">
+          <div class="result-heading"><div><div class="eyebrow">02 / READ A RESULT</div><h2>See where the report is clear.</h2></div><p>Lookups are public and don't need a wallet.</p></div>
+          <div class="result-board">
+            <div class="lookup-controls">
+              <label for="review-id">Review ID</label>
+              <div class="lookup-row"><input id="review-id" inputmode="numeric" type="text" placeholder="e.g. 0" /><button id="lookup-button" type="button">Load review <span>↗</span></button></div>
+              <button id="latest-button" class="subtle-button" type="button">Load latest review</button>
+              <div class="contract-summary"><span>REVIEWS STORED</span><strong id="review-count">—</strong></div>
+              <p class="read-only-hint">Read-only · no transaction submitted</p>
+            </div>
+            <article id="result-card" class="result-card empty-result">
+              <div class="result-card-top"><span><i class="live-dot"></i> VALIDATOR CONSENSUS</span><span id="review-label">NO RESULT LOADED</span></div>
+              <div id="result-empty" class="result-empty"><span class="empty-symbol">✳</span><h3>Your checklist will show here.</h3><p>Paste a deployed contract address and load a review ID.</p></div>
+              <div id="result-content" hidden>
+                <div class="status-line"><span id="review-status" class="status-pill">—</span><span id="review-number" class="review-number"></span></div>
+                <p id="review-kind" class="result-offer"></p>
+                <a id="review-url" class="page-link" href="#" target="_blank" rel="noreferrer"></a>
+                <div class="rubric-grid">
+                  <div class="rubric-item"><span class="rubric-mark" data-flag="problem_clear">—</span><span>Problem or request is clear</span></div>
+                  <div class="rubric-item"><span class="rubric-mark" data-flag="steps_or_acceptance">—</span><span>Steps or acceptance criteria</span></div>
+                  <div class="rubric-item"><span class="rubric-mark" data-flag="context_present">—</span><span>Relevant context</span></div>
+                  <div class="rubric-item"><span class="rubric-mark" data-flag="supporting_evidence">—</span><span>Supporting evidence</span></div>
+                </div>
+                <div class="leader-note"><span>CHECKLIST-DERIVED SUGGESTION</span><p id="review-note"></p></div>
+                <div class="contract-summary"><span>CHECKLIST READINESS</span><strong id="review-score"></strong></div>
+                <a id="share-link" class="share-link" href="#">Share this review ↗</a>
+              </div>
+            </article>
+          </div>
+          <p class="result-caveat"><strong>Consensus is not a moderation decision.</strong> The check is a limited aid for maintainers and contributors. It never closes, labels, prioritizes, accepts, or rejects an issue.</p>
+        </section>
+
+        <section class="how-section" id="how">
+          <div class="eyebrow">03 / THE SMALL PRINT</div><h2>One checklist, an open trail.</h2>
+          <div class="steps-grid">
+            <article><span>01</span><h3>Read public evidence</h3><p>The contract accepts only a standard GitHub issue URL and reads a bounded excerpt from that issue.</p></article>
+            <article><span>02</span><h3>Assess independently</h3><p>The leader and validators each check whether the problem, steps, context, and evidence are present.</p></article>
+            <article><span>03</span><h3>Record agreement</h3><p>Matching checklist fields are stored with a readiness score. The issue body is not written to contract state.</p></article>
+          </div>
+        </section>
+      </main>
+      <footer><a class="wordmark" href="#top"><span class="brand-mark">I<span>↗</span></span> IssueGauge</a><span>Open-source maintainer aid · Testnet prototype · <a href="https://github.com/genlayerlabs" target="_blank" rel="noreferrer">Built on GenLayer ↗</a></span></footer>
+    </div>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
