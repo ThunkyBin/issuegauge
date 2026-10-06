@@ -41,8 +41,8 @@ class IssueGauge(gl.Contract):
 
         def assess_issue() -> typing.Any:
             try:
-                response = gl.nondet.web.get(api_url)
-                status_code = response.status_code
+                response = gl.nondet.web.request(api_url, method="GET")
+                status_code = response.status
                 body = response.body
             except Exception:
                 status_code = 0
@@ -190,6 +190,15 @@ secrets, or make legal, financial, medical, employment, or security judgments.
         steps_or_acceptance = review.get("steps_or_acceptance") is True
         context_present = review.get("context_present") is True
         supporting_evidence = review.get("supporting_evidence") is True
+        note = review.get("note")
+        if not isinstance(note, str) or not note.strip():
+            note = _review_note(
+                evidence_sufficient,
+                problem_clear,
+                steps_or_acceptance,
+                context_present,
+                supporting_evidence,
+            )
         if not evidence_sufficient:
             issue_kind = "UNCLEAR"
             status = "UNCLEAR"
@@ -207,13 +216,7 @@ secrets, or make legal, financial, medical, employment, or security judgments.
             "context_present": context_present,
             "supporting_evidence": supporting_evidence,
             "readiness_score": 20 * sum((problem_clear, steps_or_acceptance, context_present, supporting_evidence)) if evidence_sufficient else 0,
-            "note": _review_note(
-                evidence_sufficient,
-                problem_clear,
-                steps_or_acceptance,
-                context_present,
-                supporting_evidence,
-            ),
+            "note": note[:_MAX_NOTE_LENGTH],
             "consensus_rule": "independent_agreement_on_issue_type_and_four_checklist_fields",
             "issue_text_stored": False,
         }

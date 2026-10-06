@@ -137,6 +137,7 @@ def test_fetch_failure_records_unclear(direct_vm, direct_deploy):
     assert record["issue_kind"] == "UNCLEAR"
     assert record["evidence_sufficient"] is False
     assert record["readiness_score"] == 0
+    assert record["note"] == "GitHub returned HTTP 503 for the public issue API."
 
 
 def test_incomplete_model_output_records_unclear(direct_vm, direct_deploy):
@@ -151,6 +152,7 @@ def test_incomplete_model_output_records_unclear(direct_vm, direct_deploy):
     record = json.loads(contract.get_review(review_id))
     assert record["status"] == "UNCLEAR"
     assert record["evidence_sufficient"] is False
+    assert record["note"] == "The assessment returned incomplete checklist fields."
 
 
 def test_consensus_rejects_changed_checklist_field(direct_vm, direct_deploy):
